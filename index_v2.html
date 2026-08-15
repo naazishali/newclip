@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clip Reel Pro - Bulk Processing</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #101211;
+  --bg-panel: #161917;
+  --line: #262b28;
+  --text: #e9ece8;
+  --text-dim: #8b948d;
+  --accent: #c8ff4d;
+  --accent-dim: #7a9c33;
+  --danger: #ff6b6b;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Space Grotesk', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+}
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  font-family: var(--mono); font-weight: 600; font-size: 13px;
+  background: var(--accent); color: #0c0d0c;
+  padding: 4px 7px; border-radius: 3px;
+}
+.brand-name { font-weight: 600; font-size: 16px; }
+.tag { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+.wrap {
+  max-width: 900px; margin: 0 auto; padding: 48px 24px 100px;
+}
+.intro { margin-bottom: 40px; }
+.intro h1 {
+  font-size: 40px; line-height: 1.08; font-weight: 700; letter-spacing: -1px;
+  margin: 0 0 16px;
+}
+.intro .sub {
+  color: var(--text-dim); font-size: 15px; line-height: 1.6; max-width: 600px;
+}
+.platforms {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 16px;
+}
+.platform-tag {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 24px;
+}
+.tabs {
+  display: flex; gap: 8px; margin-bottom: 24px;
+}
+.tab {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 14px;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: var(--accent);
+  color: #0c0d0c;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.tab:hover:not(.active) { border-color: var(--accent-dim); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+.field { display: block; margin-bottom: 22px; }
+.field-label {
+  display: block; font-family: var(--mono); font-size: 11px;
+  color: var(--accent); letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.field-hint {
+  display: block; font-size: 12px; color: var(--text-dim);
+  margin-top: 6px; font-family: var(--mono);
+}
+input[type="url"], input[type="number"], input[type="file"], select, textarea {
+  width: 100%; background: #0c0d0c; border: 1px solid var(--line);
+  color: var(--text); padding: 12px 14px; border-radius: 8px;
+  font-family: var(--sans); font-size: 15px; outline: none;
+}
+textarea {
+  min-height: 150px;
+  resize: vertical;
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+.row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+.shapes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.shape {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 18px 10px; border: 1.5px solid var(--line); border-radius: 10px;
+  cursor: pointer; transition: all 0.2s;
+}
+.shape.active {
+  border-color: var(--accent);
+  background: rgba(200,255,77,0.06);
+}
+.shape-box { background: #23271f; border: 1.5px solid var(--text-dim); border-radius: 3px; }
+.shape.active .shape-box { border-color: var(--accent); background: rgba(200,255,77,0.1); }
+.shape-vertical { width: 22px; height: 38px; }
+.shape-square { width: 32px; height: 32px; }
+.shape-horizontal { width: 42px; height: 24px; }
+.shape-name { font-family: var(--mono); font-size: 13px; font-weight: 600; }
+.shape-sub { font-size: 11px; color: var(--text-dim); text-align: center; }
+.shape-check {
+  position: absolute; top: 8px; right: 8px;
+  width: 18px; height: 18px; background: var(--accent);
+  border-radius: 50%; display: none; align-items: center;
+  justify-content: center; color: #0c0d0c; font-size: 10px; font-weight: bold;
+}
+.shape.active .shape-check { display: flex; }
+button#submitBtn, button#uploadBtn, button#bulkBtn {
+  width: 100%; background: var(--accent); color: #0c0d0c; border: none;
+  padding: 16px; border-radius: 8px; font-weight: 600; font-size: 16px;
+  cursor: pointer; transition: all 0.2s; display: flex;
+  align-items: center; justify-content: center; gap: 8px;
+}
+button:hover { background: #d8ff77; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.progress { margin-top: 24px; display: none; }
+.progress-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  font-family: var(--mono); font-size: 13px; color: var(--text-dim);
+}
+.progress-pct { margin-left: auto; color: var(--accent); font-weight: 600; }
+.pulse {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+.progress-bar-wrap {
+  background: #0c0d0c; border-radius: 6px; height: 6px; overflow: hidden; margin-bottom: 20px;
+}
+.progress-bar {
+  background: var(--accent); height: 100%; border-radius: 6px;
+  transition: width 0.5s ease; width: 0%;
+}
+.bulk-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.stat-box {
+  background: #0c0d0c;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  border-left: 3px solid var(--line);
+}
+.stat-box.success { border-left-color: var(--success); }
+.stat-box.error { border-left-color: var(--danger); }
+.stat-box.warning { border-left-color: var(--warning); }
+.stat-box.info { border-left-color: var(--accent); }
+.stat-number {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.step {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 12px 8px; background: #0c0d0c; border-radius: 8px;
+  border-left: 3px solid var(--line); transition: all 0.3s;
+}
+.step.waiting { border-left-color: var(--line); }
+.step.active { border-left-color: var(--accent); background: rgba(200,255,77,0.06); }
+.step.done { border-left-color: #4ade80; }
+.step.error { border-left-color: var(--danger); }
+.step-icon { font-size: 16px; }
+.step.active .step-icon { color: var(--accent); }
+.step.done .step-icon { color: #4ade80; }
+.step-label {
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.step.active .step-label { color: var(--accent); }
+.error {
+  margin-top: 18px; padding: 14px 16px; border: 1px solid var(--danger);
+  border-radius: 8px; color: var(--danger); font-family: var(--mono);
+  font-size: 13px; background: rgba(255,107,107,0.05); display: none;
+}
+.results { margin-top: 48px; display: none; }
+.results-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.results h2 { font-size: 20px; font-weight: 600; margin: 0; }
+.success-icon { color: #4ade80; margin-right: 8px; }
+.results-count {
+  font-family: var(--mono); font-size: 12px; color: var(--text-dim);
+  background: var(--bg-panel); padding: 4px 10px; border-radius: 4px;
+}
+.clip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.clip-card {
+  border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+  background: var(--bg-panel);
+}
+.clip-preview { background: #000; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 13px; min-height: 120px; }
+.clip-meta { padding: 14px 16px; }
+.clip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.clip-fmt {
+  font-family: var(--mono); font-size: 10px; color: var(--accent);
+  letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600;
+}
+.clip-time { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+.clip-platform { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
+.clip-dl {
+  display: block; text-align: center; padding: 10px;
+  border: 1px solid var(--line); border-radius: 6px; color: var(--text);
+  text-decoration: none; font-size: 13px; transition: all 0.2s;
+}
+.clip-dl:hover { border-color: var(--accent); color: var(--accent); }
+.features {
+  margin-top: 56px; padding: 28px; background: var(--bg-panel);
+  border: 1px solid var(--line); border-radius: 12px;
+}
+.features h3 { font-size: 16px; font-weight: 600; margin: 0 0 20px; color: var(--accent); }
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.feature { display: flex; gap: 12px; align-items: flex-start; }
+.feature-icon { font-size: 20px; }
+.feature-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+.feature-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.url-counter {
+  background: var(--bg-panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.url-counter span {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+.url-counter strong {
+  color: var(--accent);
+}
+@media (max-width: 700px) {
+  .intro h1 { font-size: 32px; }
+  .row { grid-template-columns: 1fr; gap: 22px; }
+  .shapes { grid-template-columns: 1fr 1fr 1fr; }
+  .steps { grid-template-columns: repeat(3, 1fr); }
+  .feature-grid { grid-template-columns: 1fr; }
+  .bulk-stats { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-mark">CR</span>
+    <span class="brand-name">Clip Reel Pro</span>
+  </div>
+  <span class="tag">v2.2 - Bulk Processing</span>
+</div>
+
+<main class="wrap">
+
+  <section class="intro">
+    <h1>Bulk Video Processing.<br>One click, hundreds of clips.</h1>
+    <p class="sub">Paste multiple URLs and let Clip Reel Pro automatically extract highlights from all of them. Or upload your own video files!</p>
+    <div class="platforms">
+      <span class="platform-tag">📺 YouTube</span>
+      <span class="platform-tag">📘 Facebook</span>
+      <span class="platform-tag">🎵 TikTok</span>
+      <span class="platform-tag">📷 Instagram</span>
+      <span class="platform-tag">🐦 Twitter/X</span>
+      <span class="platform-tag">🔴 Reddit</span>
+      <span class="platform-tag">🎬 Vimeo</span>
+      <span class="platform-tag">+1000 more</span>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('single')">🔗 Single URL</button>
+      <button class="tab" onclick="switchTab('bulk')">📋 Bulk URLs</button>
+      <button class="tab" onclick="switchTab('upload')">📁 Upload Video</button>
+    </div>
+
+    <!-- Single URL Tab -->
+    <div id="single-tab" class="tab-content active">
+      <form id="singleForm">
+        <label class="field">
+          <span class="field-label">Video URL</span>
+          <input type="url" id="singleUrl" placeholder="https://youtube.com/watch?v=..." required>
+          <span class="field-hint">Any supported platform: YouTube, Facebook, TikTok, Instagram, etc.</span>
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span class="field-label">Clip Count</span>
+            <input type="number" id="singleClips" value="5" min="1" max="15">
+          </label>
+          <label class="field">
+            <span class="field-label">Duration (sec)</span>
+            <input type="number" id="singleDuration" value="30" min="5" max="120">
+          </label>
+          <label class="field">
+            <span class="field-label">Quality</span>
+            <select id="singleQuality">
+              <option value="720p">HD 720p</option>
+              <option value="1080p">Full HD 1080p</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Export Shape</span>
+          <div class="shapes">
+            <label class="shape active" data-fmt="vertical" onclick="toggleFormat(this, 'vertical', 'single')">
+              <span class="shape-box shape-vertical"></span>
+              <span class="shape-name">9:16</span>
+              <span class="shape-sub">TikTok - Reels - Shorts</span>
+              <span class="shape-check">✓</span>
+            </label>
+            <label class="shape" data-fmt="square" onclick="toggleFormat(this, 'square', 'single')">
+              <span class="shape-box shape-square"></span>
+              <span class="shape-name">1:1</span>
+              <span class="shape-sub">Instagram Feed</span>
+              <span class="shape-check">✓</span>
+            </label>
+            <label class="shape" data-fmt="horizontal" onclick="toggleFormat(this, 'horizontal', 'single')">
+              <span class="shape-box shape-horizontal"></span>
+              <span class="shape-name">16:9</span>
+              <span class="shape-sub">YouTube - Facebook</span>
+              <span class="shape-check">✓</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="singleBtn">
+          <span>Find the Clips</span>
+          <span>→</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Bulk URLs Tab -->
+    <div id="bulk-tab" class="tab-content">
+      <form id="bulkForm">
+        <label class="field">
+          <span class="field-label">Bulk URLs (one per line)</span>
+          <textarea id="bulkUrls" placeholder="https://youtube.com/watch?v=abc123&#10;https://tiktok.com/@user/video/456&#10;https://instagram.com/reel/789&#10;..." required></textarea>
+          <span class="field-hint">Paste multiple URLs, one per line. Each video will be processed automatically.</span>
+        </label>
+
+        <div class="url-counter">
+          <span>URLs detected: <strong id="urlCount">0</strong></span>
+          <span>Estimated clips: <strong id="clipEstimate">0</strong></span>
+        </div>
+
+        <div class="row">
+          <label class="field">
+            <span class="field-label">Clips per Video</span>
+            <input type="number" id="bulkClips" value="5" min="1" max="15">
+          </label>
+          <label class="field">
+            <span class="field-label">Duration (sec)</span>
+            <input type="number" id="bulkDuration" value="30" min="5" max="120">
+          </label>
+          <label class="field">
+            <span class="field-label">Quality</span>
+            <select id="bulkQuality">
+              <option value="720p">HD 720p</option>
+              <option value="1080p">Full HD 1080p</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Export Shape</span>
+          <div class="shapes">
+            <label class="shape active" data-fmt="vertical" onclick="toggleFormat(this, 'vertical', 'bulk')">
+              <span class="shape-box shape-vertical"></span>
+              <span class="shape-name">9:16</span>
+              <span class="shape-sub">TikTok - Reels - Shorts</span>
+              <span class="shape-check">✓</span>
+            </label>
+            <label class="shape" data-fmt="square" onclick="toggleFormat(this, 'square', 'bulk')">
+              <span class="shape-box shape-square"></span>
+              <span class="shape-name">1:1</span>
+              <span class="shape-sub">Instagram Feed</span>
+              <span class="shape-check">✓</span>
+            </label>
+            <label class="shape" data-fmt="horizontal" onclick="toggleFormat(this, 'horizontal', 'bulk')">
+              <span class="shape-box shape-horizontal"></span>
+              <span class="shape-name">16:9</span>
+              <span class="shape-sub">YouTube - Facebook</span>
+              <span class="shape-check">✓</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="bulkBtn">
+          <span>Process All Videos</span>
+          <span>→</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Upload Tab -->
+    <div id="upload-tab" class="tab-content">
+      <form id="uploadForm" enctype="multipart/form-data">
+        <label class="field">
+          <span class="field-label">Upload Video File</span>
+          <input type="file" id="videoFile" accept="video/*" required>
+          <span class="field-hint">MP4, AVI, MOV, MKV, and other video formats supported</span>
+        </label>
+
+        <div class="row">
+          <label class="field">
+            <span class="field-label">Clip Count</span>
+            <input type="number" id="uploadClips" value="5" min="1" max="15">
+          </label>
+          <label class="field">
+            <span class="field-label">Duration (sec)</span>
+            <input type="number" id="uploadDuration" value="30" min="5" max="120">
+          </label>
+          <label class="field">
+            <span class="field-label">Quality</span>
+            <select id="uploadQuality">
+              <option value="720p">HD 720p</option>
+              <option value="1080p">Full HD 1080p</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Export Shape</span>
+          <div class="shapes">
+            <label class="shape active" data-fmt="vertical" onclick="toggleFormat(this, 'vertical', 'upload')">
+              <span class="shape-box shape-vertical"></span>
+              <span class="shape-name">9:16</span>
+              <span class="shape-sub">TikTok - Reels - Shorts</span>
+              <span class="shape-check">✓</span>
+            </label>
+            <label class="shape" data-fmt="square" onclick="toggleFormat(this, 'square', 'upload')">
+              <span class="shape-box shape-square"></span>
+              <span class="shape-name">1:1</span>
+              <span class="shape-sub">Instagram Feed</span>
+              <span class="shape-check">✓</span>
+            </label>
+            <label class="shape" data-fmt="horizontal" onclick="toggleFormat(this, 'horizontal', 'upload')">
+              <span class="shape-box shape-horizontal"></span>
+              <span class="shape-name">16:9</span>
+              <span class="shape-sub">YouTube - Facebook</span>
+              <span class="shape-check">✓</span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="uploadBtn">
+          <span>Upload & Process</span>
+          <span>→</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- Progress Section -->
+    <div id="progress" class="progress">
+      <div class="progress-header">
+        <div class="pulse"></div>
+        <span id="statusText">Initializing...</span>
+        <span id="progressPercent" class="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar-wrap">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <!-- Bulk Stats (only for bulk mode) -->
+      <div id="bulkStats" style="display: none;">
+        <div class="bulk-stats">
+          <div class="stat-box info">
+            <div class="stat-number" id="statTotal">0</div>
+            <div class="stat-label">Total URLs</div>
+          </div>
+          <div class="stat-box success">
+            <div class="stat-number" id="statDone">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+          <div class="stat-box error">
+            <div class="stat-number" id="statFailed">0</div>
+            <div class="stat-label">Failed</div>
+          </div>
+          <div class="stat-box warning">
+            <div class="stat-number" id="statClips">0</div>
+            <div class="stat-label">Clips Made</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="steps">
+        <div class="step waiting" data-step="download"><span class="step-icon">⏳</span><span class="step-label">Download</span></div>
+        <div class="step waiting" data-step="audio"><span class="step-icon">⏳</span><span class="step-label">Audio</span></div>
+        <div class="step waiting" data-step="analyze"><span class="step-icon">⏳</span><span class="step-label">Analyze</span></div>
+        <div class="step waiting" data-step="render"><span class="step-icon">⏳</span><span class="step-label">Render</span></div>
+        <div class="step waiting" data-step="complete"><span class="step-icon">⏳</span><span class="step-label">Done</span></div>
+      </div>
+    </div>
+
+    <div id="error" class="error"></div>
+  </section>
+
+  <!-- Results Section -->
+  <section id="results" class="results">
+    <div class="results-header">
+      <h2><span class="success-icon">✓</span>All Clips Ready</h2>
+      <span id="resultsCount" class="results-count"></span>
+    </div>
+    <div id="clipGrid" class="clip-grid"></div>
+  </section>
+
+</main>
+
+<script>
+// State management
+let singleFormats = ['vertical'];
+let bulkFormats = ['vertical'];
+let uploadFormats = ['vertical'];
+let pollInterval = null;
+let isBulkMode = false;
+
+// Tab switching
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+
+  if (tab === 'single') {
+    document.querySelector('.tab:nth-child(1)').classList.add('active');
+    document.getElementById('single-tab').classList.add('active');
+    isBulkMode = false;
+  } else if (tab === 'bulk') {
+    document.querySelector('.tab:nth-child(2)').classList.add('active');
+    document.getElementById('bulk-tab').classList.add('active');
+    isBulkMode = true;
+  } else {
+    document.querySelector('.tab:nth-child(3)').classList.add('active');
+    document.getElementById('upload-tab').classList.add('active');
+    isBulkMode = false;
+  }
+}
+
+// Format toggling
+function toggleFormat(el, fmt, mode) {
+  let formats = mode === 'single' ? singleFormats : mode === 'bulk' ? bulkFormats : uploadFormats;
+
+  if (formats.includes(fmt)) {
+    if (formats.length > 1) {
+      formats.splice(formats.indexOf(fmt), 1);
+      el.classList.remove('active');
+    }
+  } else {
+    formats.push(fmt);
+    el.classList.add('active');
+  }
+}
+
+// URL counting for bulk
+const bulkUrlsTextarea = document.getElementById('bulkUrls');
+if (bulkUrlsTextarea) {
+  bulkUrlsTextarea.addEventListener('input', function() {
+    const urls = this.value.split('\n').filter(u => u.trim());
+    document.getElementById('urlCount').textContent = urls.length;
+    const clipsPer = parseInt(document.getElementById('bulkClips').value) || 5;
+    const formats = bulkFormats.length;
+    document.getElementById('clipEstimate').textContent = urls.length * clipsPer * formats;
+  });
+}
+
+// Step management
+function updateStep(stepName, state) {
+  const step = document.querySelector('.step[data-step="' + stepName + '"]');
+  if (!step) return;
+  step.className = 'step ' + state;
+  const icon = step.querySelector('.step-icon');
+  if (state === 'waiting') icon.textContent = '⏳';
+  else if (state === 'active') icon.textContent = '▶';
+  else if (state === 'done') icon.textContent = '✓';
+  else if (state === 'error') icon.textContent = '✗';
+}
+
+function resetSteps() {
+  document.querySelectorAll('.step').forEach(s => updateStep(s.dataset.step, 'waiting'));
+}
+
+function startProgress() {
+  document.getElementById('error').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('clipGrid').innerHTML = '';
+  if (pollInterval) clearInterval(pollInterval);
+
+  document.getElementById('progress').style.display = 'block';
+  resetSteps();
+  updateStep('download', 'active');
+  document.getElementById('statusText').textContent = 'Starting...';
+  document.getElementById('progressPercent').textContent = '0%';
+  document.getElementById('progressBar').style.width = '0%';
+}
+
+function showError(msg) {
+  const err = document.getElementById('error');
+  err.innerHTML = msg.replace(/\n/g, '<br>');
+  err.style.display = 'block';
+  document.getElementById('progress').style.display = 'none';
+  document.getElementById('singleBtn').disabled = false;
+  document.getElementById('bulkBtn').disabled = false;
+  document.getElementById('uploadBtn').disabled = false;
+}
+
+function renderResults(results) {
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('resultsCount').textContent = results.length + ' clip' + (results.length !== 1 ? 's' : '');
+  const grid = document.getElementById('clipGrid');
+  grid.innerHTML = '';
+
+  results.forEach(clip => {
+    const aspect = clip.format === 'vertical' ? '9/16' : clip.format === 'square' ? '1/1' : '16/9';
+    const platform = clip.format === 'vertical' ? 'TikTok - Reels - Shorts' : clip.format === 'square' ? 'Instagram Feed' : 'YouTube - Facebook';
+
+    const card = document.createElement('div');
+    card.className = 'clip-card';
+    card.innerHTML = `
+      <div class="clip-preview" style="aspect-ratio: ${aspect}">
+        <div style="text-align: center;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🎬</div>
+          <div>Clip - ${clip.format}</div>
+        </div>
+      </div>
+      <div class="clip-meta">
+        <div class="clip-header">
+          <span class="clip-fmt">${clip.format} - ${clip.quality}</span>
+          <span class="clip-time">${clip.timestamp}</span>
+        </div>
+        <div class="clip-platform">${platform}</div>
+        <a class="clip-dl" href="/api/download/${clip.filename}" download="${clip.filename}">Download MP4</a>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// Polling
+function pollStatus(jobId, isBulk) {
+  pollInterval = setInterval(async () => {
+    try {
+      const res = await fetch('/api/status/' + jobId);
+      const job = await res.json();
+
+      if (job.status === 'running') {
+        document.getElementById('statusText').textContent = job.message || 'Working...';
+        if (job.progress !== undefined) {
+          document.getElementById('progressPercent').textContent = job.progress + '%';
+          document.getElementById('progressBar').style.width = job.progress + '%';
+        }
+
+        // Update bulk stats if available
+        if (isBulk && job.total) {
+          document.getElementById('bulkStats').style.display = 'block';
+          document.getElementById('statTotal').textContent = job.total || 0;
+          document.getElementById('statDone').textContent = job.completed || 0;
+          document.getElementById('statFailed').textContent = job.failed || 0;
+          document.getElementById('statClips').textContent = (job.results || []).length;
+        }
+
+        if (job.step) {
+          updateStep(job.step, 'active');
+          const steps = ['download', 'audio', 'analyze', 'render', 'complete'];
+          const idx = steps.indexOf(job.step);
+          for (let i = 0; i < idx; i++) updateStep(steps[i], 'done');
+        }
+      } else if (job.status === 'done') {
+        clearInterval(pollInterval);
+        updateStep('complete', 'done');
+        document.getElementById('progress').style.display = 'none';
+        renderResults(job.results);
+        document.getElementById('singleBtn').disabled = false;
+        document.getElementById('bulkBtn').disabled = false;
+        document.getElementById('uploadBtn').disabled = false;
+      } else if (job.status === 'error') {
+        clearInterval(pollInterval);
+        updateStep(job.step || 'render', 'error');
+        showError(job.error || 'Processing failed');
+      }
+    } catch (err) {
+      clearInterval(pollInterval);
+      showError('Status check failed: ' + err.message);
+    }
+  }, 1500);
+}
+
+// Single URL Form
+document.getElementById('singleForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const url = document.getElementById('singleUrl').value.trim();
+  const clips = parseInt(document.getElementById('singleClips').value);
+  const duration = parseInt(document.getElementById('singleDuration').value);
+  const quality = document.getElementById('singleQuality').value;
+
+  if (!singleFormats.length) { showError('Please select at least one export format'); return; }
+
+  document.getElementById('singleBtn').disabled = true;
+  startProgress();
+
+  try {
+    const res = await fetch('/api/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, clips, duration, formats: singleFormats, quality })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail?.[0]?.msg || data.error || 'Request failed');
+
+    pollStatus(data.job_id, false);
+  } catch (err) {
+    showError(err.message);
+    document.getElementById('singleBtn').disabled = false;
+  }
+});
+
+// Bulk URLs Form
+document.getElementById('bulkForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const urlsText = document.getElementById('bulkUrls').value.trim();
+  const urls = urlsText.split('\n').map(u => u.trim()).filter(u => u);
+
+  if (urls.length === 0) { showError('Please enter at least one URL'); return; }
+  if (urls.length > 50) { showError('Maximum 50 URLs allowed at once'); return; }
+
+  const clips = parseInt(document.getElementById('bulkClips').value);
+  const duration = parseInt(document.getElementById('bulkDuration').value);
+  const quality = document.getElementById('bulkQuality').value;
+
+  if (!bulkFormats.length) { showError('Please select at least one export format'); return; }
+
+  document.getElementById('bulkBtn').disabled = true;
+  startProgress();
+  document.getElementById('bulkStats').style.display = 'block';
+
+  try {
+    const res = await fetch('/api/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ urls, clips, duration, formats: bulkFormats, quality })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail?.[0]?.msg || data.error || 'Request failed');
+
+    pollStatus(data.job_id, true);
+  } catch (err) {
+    showError(err.message);
+    document.getElementById('bulkBtn').disabled = false;
+  }
+});
+
+// Upload Form
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const fileInput = document.getElementById('videoFile');
+  const clips = parseInt(document.getElementById('uploadClips').value);
+  const duration = parseInt(document.getElementById('uploadDuration').value);
+  const quality = document.getElementById('uploadQuality').value;
+
+  if (!fileInput.files || fileInput.files.length === 0) { showError('Please select a video file'); return; }
+  if (!uploadFormats.length) { showError('Please select at least one export format'); return; }
+
+  document.getElementById('uploadBtn').disabled = true;
+  startProgress();
+  document.getElementById('statusText').textContent = 'Uploading file...';
+
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('clips', clips);
+  formData.append('duration', duration);
+  formData.append('formats', uploadFormats.join(','));
+  formData.append('quality', quality);
+
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail?.[0]?.msg || data.error || 'Upload failed');
+
+    pollStatus(data.job_id, false);
+  } catch (err) {
+    showError(err.message);
+    document.getElementById('uploadBtn').disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>

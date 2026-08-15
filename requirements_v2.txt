@@ -1,0 +1,23 @@
+# Clip Reel Pro v2.0 Dependencies
+# Install: pip install -r requirements_v2.txt
+
+# Web Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+
+# Templates & Forms
+jinja2>=3.1.0
+python-multipart>=0.0.6
+
+# YouTube Download
+yt-dlp>=2023.12.0
+
+# Audio Analysis
+librosa>=0.10.0
+numpy>=1.24.0
+soundfile>=0.12.0
+scipy>=1.11.0
+
+# System Requirements (install via apt):
+# ffmpeg
+# ffprobe
